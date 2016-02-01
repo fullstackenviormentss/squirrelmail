@@ -158,17 +158,27 @@ if ( $chapter == 0 || !isset( $helpdir[$chapter-1] ) ) {
     // Get the chapter numbers, title and decriptions.
     for ($i=0, $cnt = count($helpdir); $i < $cnt; $i++) {
         if (file_exists("../help/$user_language/$helpdir[$i]")) {
-            // First try the selected language.
-            $doc = file("../help/$user_language/$helpdir[$i]");
-            $help_info = get_info($doc, 0);
-            $toc[] = array($i+1, $help_info[0], $help_info[2]);
+            if (is_readable("../help/$user_language/$helpdir[$i]")) {
+                // First try the selected language.
+                $doc = file("../help/$user_language/$helpdir[$i]");
+                $help_info = get_info($doc, 0);
+                $toc[] = array($i+1, $help_info[0], $help_info[2]);
+            } else {
+                $toc[] = array($i+1, _("This chapter file is not readable"),
+                         sprintf(_("For some reason, the file for chapter %s is not readable."), $i+1));
+            }
         } elseif (file_exists("../help/en_US/$helpdir[$i]")) {
-            // If the selected language can't be found, try English.
-            $doc = file("../help/en_US/$helpdir[$i]");
-            $help_info = get_info($doc, 0);
-            $toc[] = array($i+1, $help_info[0],
-                    _("This chapter is not available in the selected language. It will be displayed in English instead.") .
-                    '<br />' . $help_info[2]);
+            if (is_readable("../help/en_US/$helpdir[$i]")) {
+                // If the selected language can't be found, try English.
+                $doc = file("../help/en_US/$helpdir[$i]");
+                $help_info = get_info($doc, 0);
+                $toc[] = array($i+1, $help_info[0],
+                        _("This chapter is not available in the selected language. It will be displayed in English instead.") .
+                        '<br />' . $help_info[2]);
+            } else {
+                $toc[] = array($i+1, _("This chapter file is not readable"),
+                         sprintf(_("For some reason, the file for chapter %s is not readable."), $i+1));
+            }
         } else {
             // If English can't be found, the chapter went MIA.
             $toc[] = array($i+1, _("This chapter is missing"),
@@ -201,19 +211,29 @@ if ( $chapter == 0 || !isset( $helpdir[$chapter-1] ) ) {
 
     // Get the chapter.
     if (file_exists("../help/$user_language/" . $helpdir[$chapter-1])) {
-        // First try the selected language.
-        $doc = file("../help/$user_language/" . $helpdir[$chapter-1]);
+        if (is_readable("../help/$user_language/" . $helpdir[$chapter-1])) {
+            // First try the selected language.
+           $doc = file("../help/$user_language/" . $helpdir[$chapter-1]);
+        } else {
+            error_box(sprintf(_("For some reason, the file for chapter %s is not readable."), $chapter), $color);
+            echo '<br />';
+        }
     } elseif (file_exists("../help/en_US/" . $helpdir[$chapter-1])) {
-        // If the selected language can't be found, try English.
-        $doc = file("../help/en_US/" . $helpdir[$chapter-1]);
-        error_box(_("This chapter is not available in the selected language. It will be displayed in English instead."), $color);
-        echo '<br />';
+        if (is_readable("../help/en_US/" . $helpdir[$chapter-1])) {
+            // If the selected language can't be found, try English.
+            $doc = file("../help/en_US/" . $helpdir[$chapter-1]);
+            error_box(_("This chapter is not available in the selected language. It will be displayed in English instead."), $color);
+            echo '<br />';
+        } else {
+            error_box(sprintf(_("For some reason, the file for chapter %s is not readable."), $chapter), $color);
+            echo '<br />';
+        }
     } else {
         // If English can't be found, the chapter went MIA.
         $display_chapter = FALSE;
     }
 
-    // Write the chpater header.
+    // Write the chapter header.
     echo '<div style="text-align: center;"><small>';
     if ($chapter <= 1){
         echo '<font color="' . $color[9] . '">' . _("Previous")
