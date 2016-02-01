@@ -31,7 +31,7 @@ function squirrelmail_plugin_init_mail_fetch() {
 
 function mail_fetch_link() {
     displayInternalLink('plugins/mail_fetch/fetch.php', _("Fetch"), '');
-    echo '&nbsp;&nbsp;';
+    echo "&nbsp;&nbsp;\n";
 }
 
 function mail_fetch_load_pref() {
